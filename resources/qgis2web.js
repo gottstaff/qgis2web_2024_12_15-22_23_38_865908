@@ -1,4 +1,3 @@
-
 var map = new ol.Map({
     target: 'map',
     renderer: 'canvas',
@@ -316,9 +315,11 @@ function onSingleClickFeatures(evt) {
     var currentFeatureKeys;
     var clusteredFeatures;
     var popupText = '<ul>';
+    var featureFound = false;
     
     map.forEachFeatureAtPixel(pixel, function(feature, layer) {
         if (layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") === undefined)) {
+            featureFound = true;
             var doPopup = false;
             for (var k in layer.get('fieldImages')) {
                 if (layer.get('fieldImages')[k] !== "Hidden") {
@@ -349,13 +350,20 @@ function onSingleClickFeatures(evt) {
             }
         }
     });
+
+    if (!featureFound) {
+        // Add geographical coordinates to the popup if no feature is found
+        var lonLat = ol.proj.toLonLat(coord);
+        popupText += '<li>Coordeadas: Latitude: ' + lonLat[1].toFixed(6) + ', Lonxitude: ' + lonLat[0].toFixed(6) + '</li>';
+    }
+
     if (popupText === '<ul>') {
         popupText = '';
     } else {
         popupText += '</ul>';
     }
-	
-	popupContent = popupText;
+    
+    popupContent = popupText;
     popupCoord = coord;
     updatePopup();
 }
